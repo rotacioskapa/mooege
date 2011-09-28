@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (C) 2011 D3Sharp Project
  *
  * This program is free software; you can redistribute it and/or modify
@@ -41,6 +41,14 @@ namespace D3Sharp.Core.Ingame.Universe
         public GameClient Client { get; set; }
         public Hero Hero { get; set; }
         public Universe Universe;
+        private int MinDamage = 10;
+        private int MaxDamage = 500;
+
+        public int Damage()
+        {
+            Random rg = new Random();
+            return (MinDamage + rg.Next(MaxDamage));
+        }
 
         public Player(GameClient client, Universe universe, Toon bnetToon)
         {
@@ -1505,3 +1513,4 @@ namespace D3Sharp.Core.Ingame.Universe
         }
     }
 }
+
