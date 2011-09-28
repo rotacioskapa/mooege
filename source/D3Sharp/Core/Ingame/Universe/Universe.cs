@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (C) 2011 D3Sharp Project
  *
  * This program is free software; you can redistribute it and/or modify
@@ -305,6 +305,10 @@ namespace D3Sharp.Core.Ingame.Universe
         {
             Logger.Info("Player interaction with " + message.AsText());
 
+            int Damage = client.Player.Damage();
+            client.SearchMonster(message.Field1).Minhitpoints -= Damage;
+
+
             Portal p=GetPortal(message.Field1);
 
             if (p!=null)
@@ -316,7 +320,7 @@ namespace D3Sharp.Core.Ingame.Universe
 
             else if (client.ObjectIdsSpawned == null || !client.ObjectIdsSpawned.Contains(message.Field1)) return;
 
-            client.ObjectIdsSpawned.Remove(message.Field1);
+            
 
             var killAni = new int[]{
                     0x2cd7,
@@ -362,26 +366,30 @@ namespace D3Sharp.Core.Ingame.Universe
             {
                 Id = 0xd0,
                 Field0 = message.Field1,
-                Field1 = 9001.0f,
+                //Field1 = 9001.0f,
+                Field1 = Damage,
                 Field2 = 0,
             });
 
-            client.SendMessage(new ANNDataMessage()
+            if (client.SearchMonster(message.Field1).Minhitpoints <= 0)
             {
-                Id = 0x6d,
-                Field0 = message.Field1,
-            });
+                client.ObjectIdsSpawned.Remove(message.Field1);
+                client.SendMessage(new ANNDataMessage()
+                {
+                    Id = 0x6d,
+                    Field0 = message.Field1,
+                });
 
-            int ani = killAni[RandomHelper.Next(killAni.Length)];
-            Logger.Info("Ani used: " + ani);
+                int ani = killAni[RandomHelper.Next(killAni.Length)];
+                Logger.Info("Ani used: " + ani);
 
-            client.SendMessage(new PlayAnimationMessage()
-            {
-                Id = 0x6c,
-                Field0 = message.Field1,
-                Field1 = 0xb,
-                Field2 = 0,
-                tAnim = new PlayAnimationMessageSpec[1]
+                client.SendMessage(new PlayAnimationMessage()
+                {
+                    Id = 0x6c,
+                    Field0 = message.Field1,
+                    Field1 = 0xb,
+                    Field2 = 0,
+                    tAnim = new PlayAnimationMessageSpec[1]
                 {
                     new PlayAnimationMessageSpec()
                     {
@@ -391,21 +399,32 @@ namespace D3Sharp.Core.Ingame.Universe
                         Field3 = 1f
                     }
                 }
-            });
+                });
 
-            client.PacketId += 10 * 2;
-            client.SendMessage(new DWordDataMessage()
-            {
-                Id = 0x89,
-                Field0 = client.PacketId,
-            });
+                client.PacketId += 10 * 2;
+                client.SendMessage(new DWordDataMessage()
+                {
+                    Id = 0x89,
+                    Field0 = client.PacketId,
+                });
 
-            client.SendMessage(new ANNDataMessage()
-            {
-                Id = 0xc5,
-                Field0 = message.Field1,
-            });
+                client.SendMessage(new ANNDataMessage()
+                {
+                    Id = 0xc5,
+                    Field0 = message.Field1,
+                });
 
+                client.SendMessage(new AttributeSetValueMessage
+                {
+                    Id = 0x4c,
+                    Field0 = message.Field1,
+                    Field1 = new NetAttributeKeyValue
+                    {
+                        Attribute = GameAttribute.Attributes[0x1c2],
+                        Int = 1
+                    }
+                });
+            }
             client.SendMessage(new AttributeSetValueMessage
             {
                 Id = 0x4c,
@@ -413,18 +432,7 @@ namespace D3Sharp.Core.Ingame.Universe
                 Field1 = new NetAttributeKeyValue
                 {
                     Attribute = GameAttribute.Attributes[0x4d],
-                    Float = 0
-                }
-            });
-
-            client.SendMessage(new AttributeSetValueMessage
-            {
-                Id = 0x4c,
-                Field0 = message.Field1,
-                Field1 = new NetAttributeKeyValue
-                {
-                    Attribute = GameAttribute.Attributes[0x1c2],
-                    Int = 1
+                    Float = client.SearchMonster(message.Field1).Minhitpoints
                 }
             });
 
@@ -481,7 +489,7 @@ namespace D3Sharp.Core.Ingame.Universe
 
             client.ObjectId++;
             client.ObjectIdsSpawned.Add(client.ObjectId);
-
+            client.monsters.Add(new Monster(client.ObjectId,1000, 1000));
             #region ACDEnterKnown Hittable Zombie
             client.SendMessage(new ACDEnterKnownMessage()
             {
@@ -638,12 +646,12 @@ namespace D3Sharp.Core.Ingame.Universe
                 atKeyVals = new NetAttributeKeyValue[9] {
                     new NetAttributeKeyValue {
                         Attribute = GameAttribute.Attributes[86],
-                        Float = 4.546875f
+                        Float = 1000.0f
                     },
                     new NetAttributeKeyValue {
                         Field0 = 79486,
                         Attribute = GameAttribute.Attributes[460],
-                        Int = 1
+                        Int = 0
                     },
                     new NetAttributeKeyValue {
                         Attribute = GameAttribute.Attributes[84],
@@ -651,15 +659,15 @@ namespace D3Sharp.Core.Ingame.Universe
                     },
                     new NetAttributeKeyValue {
                         Attribute = GameAttribute.Attributes[81],
-                        Int = 0
+                        Int = 1
                     },
                     new NetAttributeKeyValue {
                         Attribute = GameAttribute.Attributes[77],
-                        Float = 4.546875f
+                        Float = 999f
                     },
                     new NetAttributeKeyValue {
                         Attribute = GameAttribute.Attributes[69],
-                        Int = 1
+                        Int = 0
                     },
                     new NetAttributeKeyValue {
                         Field0 = 30582,
@@ -735,3 +743,4 @@ namespace D3Sharp.Core.Ingame.Universe
         }
     }
 }
+
