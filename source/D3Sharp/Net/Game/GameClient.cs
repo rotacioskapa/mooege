@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (C) 2011 D3Sharp Project
  *
  * This program is free software; you can redistribute it and/or modify
@@ -28,6 +28,19 @@ using D3Sharp.Utils;
 
 namespace D3Sharp.Net.Game
 {
+    public class Monster
+    {        
+        public int Minhitpoints = 0;
+        public int Maxhitpoints = 0;
+        public int id = 0;
+
+        public Monster(int id, int min, int max)
+        {
+            this.id = id;
+            Minhitpoints = min;
+            Maxhitpoints = max;
+        }
+    };
     public sealed class GameClient : IGameClient
     {
         static readonly Logger Logger = LogManager.CreateLogger();
@@ -44,8 +57,21 @@ namespace D3Sharp.Net.Game
         public int Tick = 0;
         public int ObjectId = 0x78f50114 + 100;
         public IList<int> ObjectIdsSpawned = null;
+        public List<Monster> monsters = new List<Monster>();
 
         public bool IsLoggingOut;
+
+        public Monster SearchMonster (int id)
+        {
+            for (int i = 0; i < monsters.Count;i++ )
+            {
+                if (monsters[i].id == id)
+                {
+                    return monsters[i];
+                }
+            }
+            return null;
+        }
 
         public GameClient(IConnection connection, Universe universe)
         {            
