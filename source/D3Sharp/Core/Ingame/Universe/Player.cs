@@ -42,7 +42,11 @@ namespace D3Sharp.Core.Ingame.Universe
         public Hero Hero { get; set; }
         public Universe Universe;
         private int MinDamage = 10;
-        private int MaxDamage = 500;
+        private int MaxDamage = 500;        
+        public int Level = 1;
+        public int Xp = 1180;
+        public int NextXp = 1200;
+        public int resource = 100;
 
         public int Damage()
         {
@@ -1431,7 +1435,13 @@ namespace D3Sharp.Core.Ingame.Universe
                                                                                      Client.Player.Hero.Properties.
                                                                                      Equipment.VisualItemList[4].Gbid,
                                                                                  Field1 = 0x00000000,
-                                                                                 Field2 = 0x00000000,
+                                                                                 Field2 = 4 ,/*Slash effects 
+                                                                                             1 = lightning
+                                                                                             2 = ice
+                                                                                             3 = fire 
+                                                                                             4 = poison
+                                                                                             5 = arcane
+                                                                                              ...*/
                                                                                  Field3 = -1,
                                                                              },
                                                                          new VisualItem() //Offhand
