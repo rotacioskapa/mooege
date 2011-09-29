@@ -25,6 +25,7 @@ using D3Sharp.Net.BNet;
 using D3Sharp.Net.Game.Message;
 using D3Sharp.Net.Game.Message.Fields;
 using D3Sharp.Utils;
+using D3Sharp.Net.Game.Message.Definitions.Attribute;
 
 namespace D3Sharp.Net.Game
 {
@@ -33,12 +34,14 @@ namespace D3Sharp.Net.Game
         public int Minhitpoints = 0;
         public int Maxhitpoints = 0;
         public int id = 0;
+        public int xp = 1000;
 
-        public Monster(int id, int min, int max)
+        public Monster(int id, int min, int max, int xp)
         {
             this.id = id;
+            this.xp = xp;
             Minhitpoints = min;
-            Maxhitpoints = max;
+            Maxhitpoints = max;            
         }
     };
     public sealed class GameClient : IGameClient
@@ -73,6 +76,7 @@ namespace D3Sharp.Net.Game
             return null;
         }
 
+        
         public GameClient(IConnection connection, Universe universe)
         {            
             this.Connection = connection;
