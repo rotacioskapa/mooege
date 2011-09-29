@@ -368,14 +368,70 @@ namespace D3Sharp.Core.Ingame.Universe
             {
                 Id = 0xd0,
                 Field0 = message.Field1,
-                //Field1 = 9001.0f,
                 Field1 = Damage,
                 Field2 = 0,
             });
 
+            //RESOURCE
+            Console.Out.WriteLine(client.Player.resource);
+            client.SendMessage(new AttributeSetValueMessage()
+            {
+                Id = 0x4c,
+                Field0 = 0x789E00E2,
+                Field1 = new NetAttributeKeyValue
+                {
+                    Attribute = GameAttribute.Attributes[99],
+                    Int = client.Player.resource,
+                    Float = 0
+                }
+            });
+
+            
+            //the monster died
             if (client.SearchMonster(message.Field1) != null && client.SearchMonster(message.Field1).Minhitpoints <= 0)
             {
                 client.ObjectIdsSpawned.Remove(message.Field1);
+
+                //The player should level up there
+                if (client.Player.NextXp <= 0)
+                {
+                    client.Player.Level++;
+                    client.SendMessage(new AttributeSetValueMessage()
+                    {
+                        Id = 0x4c,
+                        Field0 = 0x789E00E2,
+                        Field1 = new NetAttributeKeyValue
+                        {
+                            Attribute = GameAttribute.Attributes[39],
+                            Int = client.Player.Level
+                        }
+                    });
+
+                    client.SendMessage(new AttributeSetValueMessage()
+                    {
+                        Id = 0x4c,
+                        Field0 = 0x789E00E2,
+                        Field1 = new NetAttributeKeyValue
+                        {
+                            Attribute = GameAttribute.Attributes[34],
+                            Int = client.Player.Level * 1200
+                        }
+                    });
+                }
+                //giving xp to player
+                client.Player.NextXp -= client.SearchMonster(message.Field1).xp;
+
+                client.SendMessage(new AttributeSetValueMessage()
+                {
+                    Id = 0x4c,
+                    Field0 = 0x789E00E2,
+                    Field1 = new NetAttributeKeyValue
+                    {
+                    Attribute = GameAttribute.Attributes[34],
+                    Int = client.Player.NextXp
+                    }
+                });
+                        
                 client.SendMessage(new ANNDataMessage()
                 {
                     Id = 0x6d,
@@ -427,6 +483,7 @@ namespace D3Sharp.Core.Ingame.Universe
                     }
                 });
             }
+
             client.SendMessage(new AttributeSetValueMessage
             {
                 Id = 0x4c,
@@ -479,6 +536,9 @@ namespace D3Sharp.Core.Ingame.Universe
         public void SpawnMob(GameClient client, int mobId) // this shoudn't even rely on client or it's position though i know this is just a hack atm ;) /raist.
         {
             int nId = mobId;
+            int MobHP = RandomHelper.Next(3000)+1000;
+            int MobXP = RandomHelper.Next(500) + 2;
+
             if (client.Player.Hero.Position == null)
                 return;
 
@@ -491,7 +551,7 @@ namespace D3Sharp.Core.Ingame.Universe
 
             client.ObjectId++;
             client.ObjectIdsSpawned.Add(client.ObjectId);
-            client.monsters.Add(new Monster(client.ObjectId,1000, 1000));
+            client.monsters.Add(new Monster(client.ObjectId, MobHP, MobHP, MobXP));
             #region ACDEnterKnown Hittable Zombie
             client.SendMessage(new ACDEnterKnownMessage()
             {
@@ -648,7 +708,7 @@ namespace D3Sharp.Core.Ingame.Universe
                 atKeyVals = new NetAttributeKeyValue[9] {
                     new NetAttributeKeyValue {
                         Attribute = GameAttribute.Attributes[86],
-                        Float = 1000.0f
+                        Float = MobHP
                     },
                     new NetAttributeKeyValue {
                         Field0 = 79486,
@@ -665,7 +725,7 @@ namespace D3Sharp.Core.Ingame.Universe
                     },
                     new NetAttributeKeyValue {
                         Attribute = GameAttribute.Attributes[77],
-                        Float = 999f
+                        Float = MobHP
                     },
                     new NetAttributeKeyValue {
                         Attribute = GameAttribute.Attributes[69],
@@ -745,4 +805,5 @@ namespace D3Sharp.Core.Ingame.Universe
         }
     }
 }
+
 
