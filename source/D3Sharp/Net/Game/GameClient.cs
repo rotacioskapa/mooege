@@ -34,7 +34,7 @@ namespace D3Sharp.Net.Game
         public int Minhitpoints = 0;
         public int Maxhitpoints = 0;
         public int id = 0;
-        public int xp = 1000;
+        public int xp = 10;
 
         public Monster(int id, int min, int max, int xp)
         {
