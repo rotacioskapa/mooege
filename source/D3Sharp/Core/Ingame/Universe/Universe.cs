@@ -306,8 +306,10 @@ namespace D3Sharp.Core.Ingame.Universe
             Logger.Info("Player interaction with " + message.AsText());
 
             int Damage = client.Player.Damage();
-            client.SearchMonster(message.Field1).Minhitpoints -= Damage;
-
+            if (client.SearchMonster(message.Field1) != null)
+            {
+                client.SearchMonster(message.Field1).Minhitpoints -= Damage;
+            }
 
             Portal p=GetPortal(message.Field1);
 
@@ -371,7 +373,7 @@ namespace D3Sharp.Core.Ingame.Universe
                 Field2 = 0,
             });
 
-            if (client.SearchMonster(message.Field1).Minhitpoints <= 0)
+            if (client.SearchMonster(message.Field1) != null && client.SearchMonster(message.Field1).Minhitpoints <= 0)
             {
                 client.ObjectIdsSpawned.Remove(message.Field1);
                 client.SendMessage(new ANNDataMessage()
